@@ -106,7 +106,7 @@ function [quality_br xy_start xy_end] = dePULM_2D_quality_y(phase_tmp,mask_q)
             flag_end = 0;
         end
         %
-        if ss == yr_tmp && flag_end == 1
+        if ss == xr_tmp && flag_end == 1
             if quality_br(ss) >= q_th
             g_end = ss;
             flag_end = 0;
