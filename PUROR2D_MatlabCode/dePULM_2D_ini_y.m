@@ -34,6 +34,7 @@ function [cell_signal cell_connect cell_seg_y] = dePULM_2D_ini_y(mag_tmp)
                     seg_y = [seg_y ii];
                     end_flag = 0;
                     end
+                    kk = 0;
                 end
             end
         end

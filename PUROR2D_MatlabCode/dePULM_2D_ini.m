@@ -34,6 +34,7 @@ function [cell_signal cell_connect cell_seg_x] = dePULM_2D_ini(mag_tmp)
                     seg_x = [seg_x ii];
                     end_flag = 0;
                     end
+                    kk=0;
                 end
             end
         end
@@ -54,7 +55,7 @@ function [cell_signal cell_connect cell_seg_x] = dePULM_2D_ini(mag_tmp)
                 end    
             end 
         %
-            if bb <= xr_tmp/4             
+            if bb <= xr_tmp/4
               bb = 1;
               for ii = 2:(xr_tmp - 1)
                 if sum_tmp_y(ii) == 3
