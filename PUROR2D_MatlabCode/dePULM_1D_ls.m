@@ -37,6 +37,10 @@ else
                     if end_flag == 1 && ii == (g_seg(jj+1) - 1)
                     index_ls = [index_ls (ii + 1)];                   
                     end
+                    %
+                    if end_flag == 0 && abs(diff_nb) > phi_good
+                    kk=0;
+                    end
                     
                 end
             end
