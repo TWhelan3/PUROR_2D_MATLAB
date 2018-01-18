@@ -3,11 +3,11 @@ function [phase_1D] = dePULM_1D(phase_1D,index_u,index_ls)
             pi_2 = 2*pi;
             phase_1D_tmp = phase_1D;
             %--------------------------
-            jj = 10000;
      if length(index_ls) > 2
            for ii = 2:2:(length(index_ls) - 2)
                    kk = index_ls(ii + 1) - index_ls(ii);     
                    %55555555555555
+               jj = 10000;
                if kk <= 6
                      test = phase_1D(index_ls(ii + 1)) + phase_1D(index_ls(ii + 1) + 1) + phase_1D(index_ls(ii + 1) + 2)...
                           - phase_1D(index_ls(ii)) - phase_1D(index_ls(ii) - 1) - phase_1D(index_ls(ii) - 2);
