@@ -9,28 +9,26 @@ function [mask4unwrap, mask4supp, mask4stack] = mask_generation(complex_image,no
     H = fspecial('gaussian',3);
     
     mask4unwrap = zeros(matrix_size(1),matrix_size(2),matrix_size(3));
-    mask4supp = zeros(matrix_size(1),matrix_size(2),matrix_size(3));
-    mask4stack = zeros(matrix_size(1),matrix_size(2),matrix_size(3));
+    mask4supp   = zeros(matrix_size(1),matrix_size(2),matrix_size(3));
+    mask4stack  = zeros(matrix_size(1),matrix_size(2),matrix_size(3));
+    
+    mag_original = abs(complex_image);
+    
+    filtered_complex = imfilter(complex_image,H);
+    filtered_mag     = abs(filtered_complex);
     
     for index_slice = 1:matrix_size(3)
+        
         background_noise = noise_threshold(index_slice);
+        mask4unwrap(:,:,index_slice) = filtered_mag(:,:,index_slice) >= background_noise*unwrap_threshold;
+        mask4supp(:,:,index_slice)   = filtered_mag(:,:,index_slice) >= background_noise*support_threshold;
+        mask4stack(:,:,index_slice)  = mag_original(:,:,index_slice) >= background_noise*stack_threshold;
         
-        complex_tmp = complex_image(:,:,index_slice);
-        mag_original = abs(complex_tmp);
-        mask_tmp = ones(matrix_size(1),matrix_size(2));
-        mask_tmp(mag_original < background_noise*stack_threshold) = 0;
-        mask4stack(:,:,index_slice) = mask_tmp;
-        
-        complex_tmp = imfilter(complex_tmp,H);
-        complex_tmp(isnan(complex_tmp)) = 0;
-        mag_original = abs(complex_tmp);
-        mask_tmp_0 = ones(matrix_size(1),matrix_size(2));
-        mask_tmp_0(mag_original < background_noise*unwrap_threshold) = 0;
-        mask4unwrap(:,:,index_slice) = mask_tmp_0;
-        
-        mask_tmp = ones(matrix_size(1),matrix_size(2));
-        mask_tmp(mag_original < background_noise*support_threshold) = 0;
-        mask_tmp(mask_tmp_0 == 0) = 0;
-        mask4supp(:,:,index_slice) = mask_tmp;
     end
+    
+    if unwrap_threshold > support_threshold
+        warning('Unwrap threshold should not be higher than support threshold. Removing pixels from support mask.')
+        mask4supp(mask4unwrap==0)=0;
+    end
+    
 end
