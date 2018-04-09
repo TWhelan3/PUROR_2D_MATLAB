@@ -18,8 +18,6 @@ function [mask4unwrap, mask4supp, mask4stack] = mask_generation(complex_image,th
         background_noise = th4noise(index_slice);
         mask_tmp = ones(matrix_size(1),matrix_size(2));
         mask_tmp(mag_original < background_noise*th4stack) = 0;
-        [L_0 num_region] = bwlabel(mask_tmp,4);
-        mask_tmp(L_0 == 0) = 0;
         mask4stack(:,:,index_slice) = mask_tmp;
         
         complex_tmp = imfilter(complex_tmp,H);
@@ -27,15 +25,11 @@ function [mask4unwrap, mask4supp, mask4stack] = mask_generation(complex_image,th
         mag_original = abs(complex_tmp);
         mask_tmp_0 = ones(matrix_size(1),matrix_size(2));
         mask_tmp_0(mag_original < background_noise*th4unwrap) = 0;
-        [L_0] = bwlabel(mask_tmp_0,4);
-        mask_tmp_0(L_0 == 0) = 0;
         mask4unwrap(:,:,index_slice) = mask_tmp_0;
         
         mask_tmp = ones(matrix_size(1),matrix_size(2));
         mask_tmp(mag_original < background_noise*th4supp) = 0;
         mask_tmp(mask_tmp_0 == 0) = 0;
-        L_h = bwlabel(mask_tmp,4);
-        mask_tmp(L_h == 0) = 0;
         mask4supp(:,:,index_slice) = mask_tmp;
     end
 end
