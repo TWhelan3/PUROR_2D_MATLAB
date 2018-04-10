@@ -1,20 +1,18 @@
-function [th4noise] = NoiseEstimation(complex_image)
+function [noise_level] = NoiseEstimation(complex_image)
     
-    matrix_size = size(complex_image);
-    
-    if length(matrix_size) == 2
-        matrix_size(3) = 1;
-    end
+    noise_level = zeros(1, size(complex_image,3));
     
     %Record noise level as standard deviation of pixels in (0-5%] max range
-    for index_slice = 1:matrix_size(3)
-        mag_original = abs(complex_image(:,:,index_slice));
-        mag_vec = mag_original(:);
-        mag_vec(isnan(mag_vec)) = [];
-        mag_vec_gray = mat2gray(mag_vec);
-        mag_vec(mag_vec_gray > 0.05) = [];
-        mag_vec(mag_vec == 0) = [];
-        th4noise(index_slice) = std(mag_vec);
+    for index_slice = 1:length(noise_level)
+        
+        slice_mag = abs(complex_image(:,:,index_slice));
+        
+        mag_gray = mat2gray(slice_mag(:)); % NaN in slice_mag are 1 in mag_gray
+        
+        slice_mag(mag_gray > 0.05 | slice_mag(:) == 0) = [];
+        
+        noise_level(index_slice) = std(slice_mag);
+        
     end
     
 end
