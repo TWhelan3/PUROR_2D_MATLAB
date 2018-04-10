@@ -1,44 +1,43 @@
 function [ unwrapped_phase_x, unwrapped_phase_y ] = StackSlice(unwrapped_phase_x, unwrapped_phase_y,~, mask4stack)
-    pi_2 = 2*pi;
-    matrix_size = size(unwrapped_phase_x);
-    mean_2D_x   = zeros(1,matrix_size(3));
-    mean_2D_y   = zeros(1,matrix_size(3));
-    for index_slice = 1:matrix_size(3)
-        MASK_stas(:,:) = mask4stack(:,:,index_slice);
-        phase_tmp_mean = unwrapped_phase_x(:,:,index_slice);
-        phase_tmp_mean = phase_tmp_mean(:);
-        phase_tmp_mean(isnan(phase_tmp_mean)) = 0;
-        phase_tmp_mean(MASK_stas(:) == 0) = [];
-        phase_tmp_mean(isnan(phase_tmp_mean)) = [];
-        tmp_mean = mean(phase_tmp_mean);
-        unwrapped_phase_x = unwrapped_phase_x - pi_2*round(tmp_mean/pi_2);
-        tmp_mean = tmp_mean - pi_2*round(tmp_mean/pi_2);
-        mean_2D_x(index_slice) = tmp_mean;
-        phase_tmp_mean =  unwrapped_phase_y(:,:,index_slice);
-        phase_tmp_mean = phase_tmp_mean(:);
-        phase_tmp_mean(isnan(phase_tmp_mean)) = 0;
-        phase_tmp_mean(MASK_stas(:) == 0) = [];
-        phase_tmp_mean(isnan(phase_tmp_mean)) = [];
-        tmp_mean = mean(phase_tmp_mean);
-        unwrapped_phase_y = unwrapped_phase_y - pi_2*round(tmp_mean/pi_2);
-        tmp_mean = tmp_mean - pi_2*round(tmp_mean/pi_2);
-        mean_2D_y(index_slice) = tmp_mean;
-    end % for index_slice
     
-    slice_centre = round(matrix_size(3)/2);
-    unwrap_mean_x = unwrap(mean_2D_x);
-    unwrap_mean_x = unwrap_mean_x - pi_2*round(unwrap_mean_x(slice_centre)/pi_2);
-    diff_mean_x = mean_2D_x - unwrap_mean_x;
+    unwrapped_phase_x = StackSlice_int(unwrapped_phase_x, mask4stack);
+    unwrapped_phase_y = StackSlice_int(unwrapped_phase_y, mask4stack);
     
-    for index_slice = 1:matrix_size(3)
-        unwrapped_phase_x(:,:,index_slice) = unwrapped_phase_x(:,:,index_slice) - pi_2*round(diff_mean_x(index_slice)/pi_2);
+end
+
+function [phase] = StackSlice_int(phase, mask)
+    
+    nSlices     = size(phase,3);
+    slice_means = zeros(1,nSlices);
+    
+    for index_slice = 1:nSlices
+        
+        slice_mask  = mask(:,:,index_slice);
+        
+        slice_phase = phase(:,:,index_slice);
+        
+        mean_phase  = mean(slice_phase(slice_mask==1));
+        
+        %Should be slice specific? left to keep agreement with original
+        phase       = phase - mround(mean_phase);
+        
+        slice_means(index_slice) = mean_phase - mround(mean_phase);
+        
     end
     
-    unwrap_mean_y = unwrap(mean_2D_y);
-    unwrap_mean_y = unwrap_mean_y - pi_2*round(unwrap_mean_y(slice_centre)/pi_2);
-    diff_mean_y = mean_2D_y - unwrap_mean_y;
+    slice_centre = round(nSlices/2);
     
-    for index_slice = 1:matrix_size(3)
-        unwrapped_phase_y(:,:,index_slice) = unwrapped_phase_y(:,:,index_slice) - pi_2*round(diff_mean_y(index_slice)/pi_2);
+    unwrapped_means = unwrap(slice_means);
+    diff_means      = unwrapped_means - slice_means;
+    diff_means      = diff_means-mround(unwrapped_means(slice_centre));
+    
+    for index_slice = 1:nSlices
+        phase(:,:,index_slice) = phase(:,:,index_slice) + diff_means(index_slice);
     end
+    
+end
+
+
+function [rounded] = mround(toround)
+    rounded = 2*pi*round(toround/pi/2);
 end
